@@ -26,8 +26,24 @@
             }
             
             try {
-                const response = await fetch(`content/${filename}`);
-                if (response.ok) {
+                // Try multiple path variations for GitHub Pages compatibility
+                let response;
+                const paths = [
+                    `content/${filename}`,
+                    `./content/${filename}`,
+                    filename
+                ];
+                
+                for (let path of paths) {
+                    try {
+                        response = await fetch(path);
+                        if (response.ok) break;
+                    } catch (e) {
+                        console.log(`Failed to fetch from ${path}:`, e.message);
+                    }
+                }
+                
+                if (response && response.ok) {
                     let content = await response.text();
                     
                     // Find the target container
